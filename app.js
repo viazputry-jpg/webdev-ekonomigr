@@ -13,6 +13,47 @@ app.get('/', (req, res) => {
   res.send('EKONOMI DASHBOARD API RUNNING');
 });
 
+
+// TESTING AMBIL PDB DARI BPS
+
+const {
+  listPdbVariables,
+  inspectVar,
+  fetchAndSavePdbFromBps,
+} = require('./pdb-bps');
+
+// (A) Cari ID variabel PDB / pertumbuhan ekonomi.
+//     Buka: http://localhost:3001/api/list-var-pdb
+app.get('/api/list-var-pdb', async (req, res) => {
+  try {
+    res.json(await listPdbVariables());
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// (B) Lihat struktur 1 variabel (untuk pilih ID + cek tahun).
+//     Buka: http://localhost:3001/api/inspect-pdb/ID_VARIABEL
+app.get('/api/inspect-pdb/:varId', async (req, res) => {
+  try {
+    res.json(await inspectVar(req.params.varId));
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// (C) Tarik PDB dari BPS lalu simpan ke Supabase (tabel pdb).
+//     Buka: http://localhost:3001/api/fetch-pdb-bps
+app.get('/api/fetch-pdb-bps', async (req, res) => {
+  try {
+    res.json(await fetchAndSavePdbFromBps());
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+
+
 // =====================
 // DATA ROUTES (untuk frontend)
 // =====================
