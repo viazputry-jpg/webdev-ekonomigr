@@ -4,6 +4,7 @@ const cors = require('cors');
 const supabase = require('./supabase');
 
 const { fetchAndSaveInflasi, fetchAndSaveEksporImpor } = require('./fetchers/bps');
+const { fetchAndSavePDB } = require('./fetchers/worldbank');
 
 const app = express();
 app.use(cors());
@@ -22,6 +23,15 @@ app.get('/api/inflasi', async (req, res) => {
     .select('*')
     .order('tahun', { ascending: true })
     .order('bulan', { ascending: true });
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
+
+app.get('/api/pdb', async (req, res) => {
+  const { data, error } = await supabase
+    .from('pdb')
+    .select('*')
+    .order('tahun', { ascending: true });
   if (error) return res.status(500).json({ error: error.message });
   res.json(data);
 });
@@ -71,6 +81,11 @@ app.get('/api/impor/:komoditas', async (req, res) => {
 app.get('/api/fetch-inflasi', async (req, res) => {
   await fetchAndSaveInflasi();
   res.json({ message: 'Fetch inflasi selesai' });
+});
+
+app.get('/api/fetch-pdb', async (req, res) => {
+  await fetchAndSavePDB();
+  res.json({ message: 'Fetch PDB selesai, cek terminal' });
 });
 
 app.get('/api/fetch-ekspor-impor', async (req, res) => {
